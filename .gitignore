@@ -1,0 +1,6 @@
+node_modules/
+.env
+.seeded
+uploads/certificates/*.pdf
+build/
+.DS_Store

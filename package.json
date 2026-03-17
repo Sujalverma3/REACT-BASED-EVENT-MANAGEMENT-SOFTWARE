@@ -1,0 +1,11 @@
+{
+  "name": "universe-geu",
+  "version": "1.0.0",
+  "description": "UniVerse GEU — Campus Event & Access Management System — Team ByteForge FS-VI-T154",
+  "scripts": {
+    "install:all": "cd server && npm install && cd ../client && npm install",
+    "dev:server":  "cd server && npm run dev",
+    "dev:client":  "cd client && npm start",
+    "seed":        "cd server && npm run seed"
+  }
+}
