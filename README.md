@@ -122,4 +122,3 @@ GET  /api/analytics/event/:id
 
 ---
 
-Graphic Era (Deemed to be University) · NAAC A+ · NIRF Top 50 · geu.ac.in
