@@ -13,6 +13,7 @@ const schema = new mongoose.Schema({
   department:      { type: String, default: 'All Departments' },
   status:          { type: String, enum: ['upcoming','ongoing','completed','cancelled'], default: 'upcoming' },
   tags:            [{ type: String }],
+  club:            { type: String, default: '' },   // e.g. 'ByteForge Club'
   isFeatured:      { type: Boolean, default: false },
 }, { timestamps: true, toJSON: { virtuals: true } });
 

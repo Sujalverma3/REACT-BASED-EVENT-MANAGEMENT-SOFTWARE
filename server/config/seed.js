@@ -42,50 +42,142 @@ async function seed() {
 
   // ── Events ─────────────────────────────────────────────
 
-  // 🟢 ONGOING — happening TODAY (auto-detected by syncEventStatus)
+  // 🟢 ONGOING — happening TODAY
   const evToday = await Event.create({
     title:           'Python Bootcamp — Day 1',
     description:     'Full-day Python bootcamp covering basics to advanced topics. Live coding sessions with hands-on exercises.',
-    date:            today,           // ← today's date
+    date:            today,
     time:            '09:00',
     venue:           'CS Block, Lab 201',
     organizer:       org1._id,
     capacity:        60,
     registeredCount: 0,
     category:        'Workshop',
-    status:          'ongoing',       // ← set directly for reliability
+    status:          'ongoing',
     department:      'Computer Science and Engineering',
     tags:            ['python', 'bootcamp', 'coding'],
+    club:            'ByteForge Club',
   });
 
-  // 🔵 UPCOMING — future events
+  // ─── ByteForge Club ───────────────────────────────────
   const evHack = await Event.create({
-    title:'GEU Hackathon 2025', description:'Annual 24-hour hackathon. Build innovative solutions. Prizes ₹1,00,000!',
+    title:'GEU Hackathon 2025',
+    description:'Annual 24-hour hackathon. Build innovative solutions. Prizes worth ₹1,00,000! Open to all GEU students.',
     date:d(3), time:'09:00', venue:'CS Block, Lab 301', organizer:org1._id,
     capacity:200, registeredCount:0, category:'Technical', status:'upcoming',
     department:'Computer Science and Engineering', tags:['hackathon','coding'],
+    club:'ByteForge Club',
   });
 
   const evAI = await Event.create({
-    title:'AI & ML Workshop', description:'Hands-on workshop on AI, Machine Learning and Python.',
+    title:'AI & ML Workshop',
+    description:'Hands-on workshop on Artificial Intelligence, Machine Learning, and Python. Build your first neural network!',
     date:d(7), time:'10:00', venue:'Seminar Hall A', organizer:org1._id,
     capacity:80, registeredCount:0, category:'Workshop', status:'upcoming',
-    department:'Computer Science and Engineering', tags:['AI','ML'],
+    department:'Computer Science and Engineering', tags:['AI','ML','python'],
+    club:'ByteForge Club',
   });
 
+  const evOpenSource = await Event.create({
+    title:'Open Source Contribution Sprint',
+    description:'ByteForge presents a full-day open-source sprint. Contribute to real GitHub projects, win swag, and grow your portfolio.',
+    date:d(10), time:'10:00', venue:'CS Block, Lab 104', organizer:org1._id,
+    capacity:50, registeredCount:0, category:'Club Activity', status:'upcoming',
+    department:'Computer Science and Engineering', tags:['open-source','github','coding'],
+    club:'ByteForge Club',
+  });
+
+  // ─── RoboCraft Club ───────────────────────────────────
+  const evRobo = await Event.create({
+    title:'Robo-War Championship 2025',
+    description:"Build a battle bot and compete in GEU's premier robotics arena! Team event (2-4 members). Exciting cash prizes await.",
+    date:d(5), time:'11:00', venue:'ECE Workshop, Block B', organizer:org2._id,
+    capacity:120, registeredCount:0, category:'Technical', status:'upcoming',
+    department:'Electronics and Communication Engineering', tags:['robotics','competition','bots'],
+    club:'RoboCraft Club',
+  });
+
+  const evIoT = await Event.create({
+    title:'IoT Masterclass: Smart Campus',
+    description:'Hands-on session on IoT, Arduino, and Raspberry Pi. Build a smart device from scratch and take it home!',
+    date:d(9), time:'09:30', venue:'ECE Lab 302', organizer:org2._id,
+    capacity:40, registeredCount:0, category:'Workshop', status:'upcoming',
+    department:'Electronics and Communication Engineering', tags:['IoT','Arduino','electronics'],
+    club:'RoboCraft Club',
+  });
+
+  const evCircuit = await Event.create({
+    title:'Circuit Design Challenge',
+    description:"RoboCraft's annual circuit design contest. Design, simulate, and present your PCB layout to a panel of faculty judges.",
+    date:d(12), time:'10:00', venue:'ECE Seminar Room', organizer:org2._id,
+    capacity:60, registeredCount:0, category:'Club Activity', status:'upcoming',
+    department:'Electronics and Communication Engineering', tags:['circuit','PCB','electronics'],
+    club:'RoboCraft Club',
+  });
+
+  // ─── ArtWave Club ─────────────────────────────────────
   const evFest = await Event.create({
-    title:'GRAFEST 2025', description:"GEU's annual mega tech & cultural festival. 3 days of competitions!",
-    date:d(14), time:'08:00', venue:'Main Campus Ground', organizer:org2._id,
+    title:'GRAFEST 2025 — Cultural Night',
+    description:"GEU's annual mega cultural festival! Dance, music, drama, and art competitions. Three nights of unforgettable performances.",
+    date:d(14), time:'18:00', venue:'Main Campus Amphitheatre', organizer:org2._id,
     capacity:5000, registeredCount:0, category:'Fest', status:'upcoming',
-    department:'All Departments', tags:['fest','GRAFEST'],
+    department:'All Departments', tags:['fest','GRAFEST','cultural'],
+    club:'ArtWave Club',
   });
 
-  // 🔴 COMPLETED — past events (with attendance + certs)
+  const evPhoto = await Event.create({
+    title:'Campus Photography Contest — Lens & Life',
+    description:'Capture the soul of GEU campus in a photo. Submit digitally; top 10 entries get gallery display and prizes.',
+    date:d(6), time:'08:00', venue:'Campus-wide + Online Submission', organizer:org2._id,
+    capacity:200, registeredCount:0, category:'Club Activity', status:'upcoming',
+    department:'All Departments', tags:['photography','art','creative'],
+    club:'ArtWave Club',
+  });
+
+  const evDrama = await Event.create({
+    title:'Street Play Competition — Nukkad Natak',
+    description:"ArtWave's inter-college street play fest. Powerful 15-minute performances on social themes. Judges from professional theatre.",
+    date:d(11), time:'15:00', venue:'Open Air Theatre, GEU Campus', organizer:org2._id,
+    capacity:300, registeredCount:0, category:'Cultural', status:'upcoming',
+    department:'All Departments', tags:['drama','street-play','theatre'],
+    club:'ArtWave Club',
+  });
+
+  // ─── GreenEarth Club ──────────────────────────────────
+  const evEco = await Event.create({
+    title:'Eco-Hackathon: Solve for SDGs',
+    description:'Build solutions for UN Sustainable Development Goals. Mentored by industry experts. Top teams get incubation support.',
+    date:d(8), time:'09:00', venue:'Innovation Hub, Block A', organizer:org1._id,
+    capacity:100, registeredCount:0, category:'Technical', status:'upcoming',
+    department:'All Departments', tags:['sustainability','SDG','hackathon','environment'],
+    club:'GreenEarth Club',
+  });
+
+  const evPlant = await Event.create({
+    title:'Plantation Drive — Green GEU',
+    description:'Join GreenEarth as we plant 500 saplings across the GEU campus. Certificates of participation for all volunteers.',
+    date:d(4), time:'07:00', venue:'GEU Campus Grounds', organizer:org1._id,
+    capacity:250, registeredCount:0, category:'Club Activity', status:'upcoming',
+    department:'All Departments', tags:['plantation','green','environment','volunteering'],
+    club:'GreenEarth Club',
+  });
+
+  const evEnergy = await Event.create({
+    title:'Campus Energy Audit Workshop',
+    description:'Learn how to conduct an energy audit. GreenEarth will audit 3 campus buildings live. Includes TERI partner certification.',
+    date:d(13), time:'10:00', venue:'Civil Engineering Seminar Hall', organizer:org2._id,
+    capacity:60, registeredCount:0, category:'Workshop', status:'upcoming',
+    department:'All Departments', tags:['energy','sustainability','audit'],
+    club:'GreenEarth Club',
+  });
+
+  // ─── COMPLETED past events ────────────────────────────
   const evBlock = await Event.create({
     title:'Blockchain 101 Seminar', description:'Introduction to Blockchain, cryptocurrency, and Web3.',
     date:d(-7), time:'14:00', venue:'Seminar Hall B', organizer:org1._id,
     capacity:60, registeredCount:0, category:'Seminar', status:'completed',
     department:'Computer Science and Engineering', tags:['blockchain','web3'],
+    club:'ByteForge Club',
   });
 
   const evUX = await Event.create({
@@ -93,11 +185,16 @@ async function seed() {
     date:d(-3), time:'10:00', venue:'Design Lab C', organizer:org2._id,
     capacity:40, registeredCount:0, category:'Workshop', status:'completed',
     department:'All Departments', tags:['design','UX'],
+    club:'ArtWave Club',
   });
 
   console.log('✅ Events created');
-  console.log(`   Today (ongoing): ${evToday.title}`);
-  console.log(`   Upcoming x3, Completed x2`);
+  console.log(`   Today (ongoing) : ${evToday.title}`);
+  console.log(`   ByteForge (3)   : Hackathon · AI Workshop · Open Source Sprint`);
+  console.log(`   RoboCraft (3)   : Robo-War · IoT Masterclass · Circuit Design`);
+  console.log(`   ArtWave   (3)   : GRAFEST · Photography · Street Play`);
+  console.log(`   GreenEarth (3)  : Eco-Hackathon · Plantation Drive · Energy Audit`);
+  console.log(`   Completed  (2)  : Blockchain Seminar · UX Sprint`);
 
   // ── Registrations for TODAY event (s1, s2, s3 registered) ──────
   const todayTokens = {};
@@ -203,28 +300,42 @@ async function seed() {
   console.log('║  Student   : sachin@geu.ac.in     / student123               ║');
   console.log('║  Student   : rahul@geu.ac.in      / student123               ║');
   console.log('╠══════════════════════════════════════════════════════════════╣');
+  console.log('║  4 CLUBS SEEDED                                              ║');
+  console.log('║  💻 ByteForge Club   — Mentor: Prof. Rajesh Sharma (CSE)     ║');
+  console.log('║     Events: Hackathon · AI Workshop · Open Source Sprint     ║');
+  console.log('║  🤖 RoboCraft Club   — Mentor: Prof. Anita Verma (ECE)       ║');
+  console.log('║     Events: Robo-War · IoT Masterclass · Circuit Design      ║');
+  console.log('║  🎨 ArtWave Club     — Mentor: Prof. Kavita Mehta (Hum.)     ║');
+  console.log('║     Events: GRAFEST · Photography · Street Play              ║');
+  console.log('║  🌱 GreenEarth Club  — Mentor: Prof. Manish Joshi (Civil)    ║');
+  console.log('║     Events: Eco-Hackathon · Plantation Drive · Energy Audit  ║');
+  console.log('╠══════════════════════════════════════════════════════════════╣');
   console.log('║  WHAT TO TEST                                                ║');
   console.log('║                                                              ║');
-  console.log('║  1. ONGOING EVENT (today):                                   ║');
+  console.log('║  1. CLUBS PAGE:                                              ║');
+  console.log('║     → Navigate to /clubs → view all 4 clubs                  ║');
+  console.log('║     → Click any club → expand with mentor details            ║');
+  console.log('║     → "View Events" → filtered by that club                  ║');
+  console.log('║                                                              ║');
+  console.log('║  2. CLUB FILTER ON EVENTS PAGE:                              ║');
+  console.log('║     → /events → click club pills (ByteForge, RoboCraft…)     ║');
+  console.log('║     → Club badge + mentor surname shown on each card         ║');
+  console.log('║                                                              ║');
+  console.log('║  3. EVENT DETAIL — CLUB CARD:                                ║');
+  console.log('║     → Click any club event → right sidebar shows club logo   ║');
+  console.log('║     → Mentor name, designation, and club tagline visible     ║');
+  console.log('║                                                              ║');
+  console.log('║  4. ONGOING EVENT (today):                                   ║');
   console.log('║     → Browse Events → Python Bootcamp shows as "ongoing"     ║');
   console.log('║                                                              ║');
-  console.log('║  2. QR SCAN (today event — Python Bootcamp):                 ║');
+  console.log('║  5. QR SCAN (today event — Python Bootcamp):                 ║');
   console.log('║     → Login: sharma@geu.ac.in (organizer)                    ║');
-  console.log('║     → Scan QR → select Python Bootcamp                       ║');
   console.log(`║     → Token (Dhruv):  ${todayTokens['Dhruv Rawat']}  ║`);
   console.log(`║     → Token (Ayush):  ${todayTokens['Ayush Gupta']}  ║`);
   console.log('║                                                              ║');
-  console.log('║  3. CERTIFICATE (already issued):                            ║');
+  console.log('║  6. CERTIFICATE (already issued):                            ║');
   console.log('║     → Login: dhruv@geu.ac.in → Certificates                  ║');
-  console.log('║     → Download cert for Blockchain 101 Seminar               ║');
-  console.log('║                                                              ║');
-  console.log('║  4. CERT PENDING (attended, not yet issued):                 ║');
-  console.log('║     → Login: rahul@geu.ac.in → Certificates → Pending tab   ║');
-  console.log('║     → UX Design Sprint cert pending                          ║');
-  console.log('║     → Then login as organizer → Dashboard → Issue Certs      ║');
-  console.log('║                                                              ║');
-  console.log('║  5. ANALYTICS:                                               ║');
-  console.log('║     → Login organizer → Analytics → Blockchain Seminar       ║');
+  console.log('║     → Download cert for Blockchain 101 Seminar (ByteForge)   ║');
   console.log('╚══════════════════════════════════════════════════════════════╝\n');
 
   process.exit(0);

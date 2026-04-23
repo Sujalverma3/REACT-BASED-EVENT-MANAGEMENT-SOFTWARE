@@ -3,6 +3,7 @@ import { useParams, useNavigate, Link } from 'react-router-dom';
 import { getEvent, registerForEvent, checkCertificate, submitFeedback, checkFeedback } from '../api';
 import { useAuth } from '../context/AuthContext';
 import toast from 'react-hot-toast';
+import { CLUB_BY_NAME } from '../data/clubs';
 
 export default function EventDetail() {
   const { id } = useParams();
@@ -76,6 +77,7 @@ export default function EventDetail() {
   const isStudent = user?.role === 'student';
   const canRegister = isStudent && event.status === 'upcoming' && !isFull;
   const APIBASE  = '';  // proxy handles it
+  const clubData = event.club ? CLUB_BY_NAME[event.club] : null;
 
   return (
     <div className="page">
@@ -87,10 +89,15 @@ export default function EventDetail() {
           {/* ── Left ── */}
           <div>
             {/* Hero card */}
-            <div style={{ background: 'linear-gradient(120deg,#5c0f0f,#8B1A1A)', borderRadius: 14, padding: '28px 32px', marginBottom: 20 }}>
-              <div style={{ display: 'flex', gap: 8, marginBottom: 14 }}>
+            <div style={{ background: `linear-gradient(120deg,#5c0f0f,${clubData ? clubData.accentColor : '#8B1A1A'})`, borderRadius: 14, padding: '28px 32px', marginBottom: 20 }}>
+              <div style={{ display: 'flex', gap: 8, marginBottom: 14, flexWrap: 'wrap', alignItems: 'center' }}>
                 <span className={`badge badge-${event.category?.toLowerCase().replace(/ /g,'')}`}>{event.category}</span>
                 <span className={`badge badge-${event.status}`}>{event.status}</span>
+                {clubData && (
+                  <span style={{ display: 'inline-flex', alignItems: 'center', gap: 5, background: 'rgba(255,255,255,0.18)', color: '#fff', borderRadius: 20, padding: '3px 10px', fontSize: 11, fontWeight: 700 }}>
+                    {clubData.logo} {clubData.name}
+                  </span>
+                )}
               </div>
               <h1 style={{ fontFamily:'Playfair Display,serif', fontSize: 32, color: '#fff', marginBottom: 8, lineHeight: 1.15 }}>{event.title}</h1>
               <p style={{ color: 'rgba(255,255,255,0.65)', fontSize: 13 }}>By {event.organizer?.name} · {event.department}</p>
@@ -272,15 +279,45 @@ export default function EventDetail() {
               </div>
             )}
 
-            {/* Organizer */}
-            {event.organizer && (
-              <div className="card">
-                <div style={{ fontSize:11,fontWeight:700,color:'#9CA3AF',textTransform:'uppercase',letterSpacing:.5,marginBottom:10 }}>Organized by</div>
-                <div style={{ display:'flex',alignItems:'center',gap:10 }}>
-                  <div style={{ width:36,height:36,borderRadius:'50%',background:'#8B1A1A',display:'flex',alignItems:'center',justifyContent:'center',color:'#fff',fontWeight:700 }}>{event.organizer.name?.charAt(0)}</div>
+            {/* Club / Organizer */}
+            {clubData ? (
+              <div className="card" style={{ borderTop: `3px solid ${clubData.accentColor}` }}>
+                <div style={{ fontSize: 11, fontWeight: 700, color: '#9CA3AF', textTransform: 'uppercase', letterSpacing: .5, marginBottom: 10 }}>Organized by Club</div>
+                {/* Club logo + name */}
+                <div style={{ display: 'flex', alignItems: 'center', gap: 12, marginBottom: 14 }}>
+                  <div style={{ width: 52, height: 52, borderRadius: 12, background: clubData.logoBg, display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 26, border: `2px solid ${clubData.accentColor}33` }}>
+                    {clubData.logo}
+                  </div>
                   <div>
-                    <div style={{ fontSize:14,fontWeight:600 }}>{event.organizer.name}</div>
-                    <div style={{ fontSize:12,color:'#6B7280' }}>{event.organizer.department}</div>
+                    <div style={{ fontSize: 15, fontWeight: 700, color: '#1a1a1a' }}>{clubData.name}</div>
+                    <div style={{ fontSize: 11, color: clubData.accentColor, fontWeight: 600, fontStyle: 'italic' }}>"{clubData.tagline}"</div>
+                  </div>
+                </div>
+                {/* Mentor */}
+                <div style={{ background: '#FAFAF9', border: '1px solid #E5E0D8', borderRadius: 10, padding: '12px 14px' }}>
+                  <div style={{ fontSize: 10, fontWeight: 700, color: '#9CA3AF', textTransform: 'uppercase', letterSpacing: .5, marginBottom: 8 }}>Club Mentor</div>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
+                    <div style={{ width: 36, height: 36, borderRadius: '50%', background: clubData.accentColor, display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#fff', fontWeight: 800 }}>
+                      {clubData.mentor.name.split(' ').pop().charAt(0)}
+                    </div>
+                    <div>
+                      <div style={{ fontSize: 13, fontWeight: 600 }}>{clubData.mentor.name}</div>
+                      <div style={{ fontSize: 11, color: '#6B7280' }}>{clubData.mentor.designation}</div>
+                    </div>
+                  </div>
+                </div>
+                <Link to={`/clubs`} style={{ display: 'block', textAlign: 'center', marginTop: 12, fontSize: 12, color: clubData.accentColor, fontWeight: 700, textDecoration: 'none' }}>
+                  View all {clubData.shortName} events →
+                </Link>
+              </div>
+            ) : event.organizer && (
+              <div className="card">
+                <div style={{ fontSize: 11, fontWeight: 700, color: '#9CA3AF', textTransform: 'uppercase', letterSpacing: .5, marginBottom: 10 }}>Organized by</div>
+                <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
+                  <div style={{ width: 36, height: 36, borderRadius: '50%', background: '#8B1A1A', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#fff', fontWeight: 700 }}>{event.organizer.name?.charAt(0)}</div>
+                  <div>
+                    <div style={{ fontSize: 14, fontWeight: 600 }}>{event.organizer.name}</div>
+                    <div style={{ fontSize: 12, color: '#6B7280' }}>{event.organizer.department}</div>
                   </div>
                 </div>
               </div>

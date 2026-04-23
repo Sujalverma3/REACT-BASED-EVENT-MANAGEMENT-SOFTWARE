@@ -44,6 +44,7 @@ export default function Navbar() {
 
           <div style={{ display: 'flex', alignItems: 'center', gap: 2 }}>
             <Link to="/events" style={linkStyle('/events')}>Events</Link>
+            <Link to="/clubs"  style={linkStyle('/clubs')}>Clubs</Link>
             {user && <Link to="/profile" style={linkStyle('/profile')}>My Profile</Link>}
             {user && <Link to="/certificates" style={linkStyle('/certificates')}>Certificates</Link>}
             {(user?.role === 'organizer' || user?.role === 'admin') && (

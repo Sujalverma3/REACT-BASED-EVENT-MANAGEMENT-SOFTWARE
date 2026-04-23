@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { getEvents } from '../api';
+import { GEU_CLUBS } from '../data/clubs';
 
 export default function Home() {
   const [events, setEvents] = useState([]);
@@ -119,6 +120,52 @@ export default function Home() {
           </div>
         </section>
       )}
+
+      {/* Clubs Section */}
+      <section style={{ background: '#fff', padding: '60px 0' }}>
+        <div className="container">
+          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-end', marginBottom: 28 }}>
+            <div>
+              <div style={{ fontSize: 11, fontWeight: 700, letterSpacing: 1.5, textTransform: 'uppercase', color: '#8B1A1A', display: 'flex', alignItems: 'center', gap: 8, marginBottom: 6 }}>
+                <div style={{ width: 20, height: 2, background: '#C9963A' }} />Campus Clubs
+              </div>
+              <h2 style={{ fontSize: 28, marginBottom: 4 }}>4 Active Student Clubs</h2>
+              <p style={{ color: '#6B7280', fontSize: 13 }}>Powered by passionate students & expert faculty mentors</p>
+            </div>
+            <Link to="/clubs" className="btn btn-outline">All Clubs →</Link>
+          </div>
+
+          <div className="grid-2" style={{ gap: 18 }}>
+            {GEU_CLUBS.map(c => (
+              <Link key={c.id} to={`/events?club=${encodeURIComponent(c.name)}`} style={{ textDecoration: 'none' }}>
+                <div className="card card-hover" style={{ display: 'flex', gap: 16, alignItems: 'center', borderLeft: `4px solid ${c.accentColor}`, padding: '16px 18px' }}>
+                  {/* Logo */}
+                  <div style={{ width: 54, height: 54, borderRadius: 12, background: c.logoBg, display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 26, flexShrink: 0 }}>
+                    {c.logo}
+                  </div>
+                  {/* Info */}
+                  <div style={{ flex: 1, minWidth: 0 }}>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 3 }}>
+                      <span style={{ fontSize: 15, fontWeight: 700, color: '#1a1a1a' }}>{c.name}</span>
+                      <span style={{ fontSize: 10, fontWeight: 700, background: c.logoBg, color: c.accentColor, padding: '1px 7px', borderRadius: 20 }}>{c.category}</span>
+                    </div>
+                    <div style={{ fontSize: 11, color: c.accentColor, fontWeight: 600, fontStyle: 'italic', marginBottom: 4 }}>"{c.tagline}"</div>
+                    <div style={{ fontSize: 11, color: '#9CA3AF', display: 'flex', alignItems: 'center', gap: 5 }}>
+                      <span style={{ width: 22, height: 22, borderRadius: '50%', background: c.accentColor, color: '#fff', display: 'inline-flex', alignItems: 'center', justifyContent: 'center', fontSize: 10, fontWeight: 800 }}>
+                        {c.mentor.name.split(' ').pop().charAt(0)}
+                      </span>
+                      Mentor: {c.mentor.name} · {c.members}+ members
+                    </div>
+                  </div>
+                  <div style={{ fontSize: 12, color: c.accentColor, fontWeight: 700, flexShrink: 0 }}>
+                    {c.eventsOrganized}+ events →
+                  </div>
+                </div>
+              </Link>
+            ))}
+          </div>
+        </div>
+      </section>
 
       {/* CTA */}
       <section style={{ background: '#8B1A1A', padding: '60px 0', textAlign: 'center' }}>

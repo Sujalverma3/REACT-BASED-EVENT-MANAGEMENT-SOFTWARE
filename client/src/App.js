@@ -17,6 +17,7 @@ import ScanQR      from './pages/ScanQR';
 import CreateEvent from './pages/CreateEvent';
 import Analytics   from './pages/Analytics';
 import EntryLogs   from './pages/EntryLogs';
+import Clubs        from './pages/Clubs';
 
 const Guard = ({ children, roles }) => {
   const { user, loading } = useAuth();
@@ -36,6 +37,7 @@ function AppInner() {
         <Route path="/register"     element={<Register/>}/>
         <Route path="/events"       element={<Events/>}/>
         <Route path="/events/:id"   element={<EventDetail/>}/>
+        <Route path="/clubs"        element={<Clubs/>}/>
         <Route path="/verify/:certId" element={<VerifyCert/>}/>
         <Route path="/profile"      element={<Guard><Profile/></Guard>}/>
         <Route path="/certificates" element={<Guard><Certificates/></Guard>}/>
