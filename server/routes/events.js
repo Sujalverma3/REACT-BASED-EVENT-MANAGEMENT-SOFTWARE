@@ -10,5 +10,6 @@ router.put('/:id',       protect, authorize('organizer','admin'), ctrl.update);
 router.delete('/:id',    protect, authorize('organizer','admin'), ctrl.remove);
 router.post('/:id/register', protect, authorize('student'),       ctrl.register);
 router.get('/:id/registrations', protect, authorize('organizer','admin'), ctrl.getRegistrations);
+router.post('/:id/end', protect, authorize('organizer','admin'), ctrl.endEvent);
 
 module.exports = router;

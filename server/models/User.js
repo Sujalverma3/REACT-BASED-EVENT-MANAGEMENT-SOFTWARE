@@ -10,6 +10,7 @@ const schema = new mongoose.Schema({
   department: { type: String, required: true },
   phone:      { type: String, default: '' },
   isActive:   { type: Boolean, default: true },
+  clubs:      { type: [String], default: [] }, // Club names student joined
 }, { timestamps: true });
 
 // Hash password before save

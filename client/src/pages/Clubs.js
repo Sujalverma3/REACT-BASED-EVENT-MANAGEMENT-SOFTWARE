@@ -1,10 +1,55 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { GEU_CLUBS } from '../data/clubs';
+import { useAuth } from '../context/AuthContext';
+import { getMyClubs, joinClub, leaveClub } from '../api';
+import toast from 'react-hot-toast';
 
 export default function Clubs() {
   const [selected, setSelected] = useState(null);
+  const [myClubs, setMyClubs] = useState([]);
+  const [joining, setJoining] = useState({});
+  const { user } = useAuth();
+  const isStudent = user?.role === 'student';
+  
   const club = selected ? GEU_CLUBS.find(c => c.id === selected) : null;
+
+  // Load user's clubs on mount
+  useEffect(() => {
+    if (!isStudent) return;
+    getMyClubs()
+      .then(r => setMyClubs(r.data.clubs))
+      .catch(() => {});
+  }, [isStudent]);
+
+  const handleJoinClub = async (clubName) => {
+    setJoining(prev => ({ ...prev, [clubName]: true }));
+    try {
+      const r = await joinClub(clubName);
+      setMyClubs(r.data.clubs);
+      toast.success(r.data.message);
+    } catch (err) {
+      toast.error(err.response?.data?.message || 'Failed to join');
+    } finally {
+      setJoining(prev => ({ ...prev, [clubName]: false }));
+    }
+  };
+
+  const handleLeaveClub = async (clubName) => {
+    if (!confirm(`Leave ${clubName}?`)) return;
+    setJoining(prev => ({ ...prev, [clubName]: true }));
+    try {
+      const r = await leaveClub(clubName);
+      setMyClubs(r.data.clubs);
+      toast.success(r.data.message);
+    } catch (err) {
+      toast.error(err.response?.data?.message || 'Failed to leave');
+    } finally {
+      setJoining(prev => ({ ...prev, [clubName]: false }));
+    }
+  };
+
+  const isMember = (clubName) => myClubs.includes(clubName);
 
   return (
     <div className="page">
@@ -73,9 +118,35 @@ export default function Clubs() {
                 ))}
               </div>
 
-              {/* Expand hint */}
-              <div style={{ textAlign: 'center', marginTop: 10, fontSize: 11, color: c.accentColor, fontWeight: 600 }}>
-                {selected === c.id ? '▲ Less info' : '▼ More info'}
+              {/* Expand hint + Join button */}
+              <div style={{ display: 'flex', flexDirection: 'column', gap: 8, marginTop: 12 }}>
+                <div style={{ textAlign: 'center', fontSize: 11, color: c.accentColor, fontWeight: 600 }}>
+                  {selected === c.id ? '▲ Less info' : '▼ More info'}
+                </div>
+                
+                {isStudent && (
+                  <div style={{ textAlign: 'center' }}>
+                    {isMember(c.name) ? (
+                      <button 
+                        onClick={() => handleLeaveClub(c.name)}
+                        disabled={joining[c.name]}
+                        className="btn btn-ghost btn-sm"
+                        style={{ background: '#dbeafe', color: '#1e40af', borderColor: '#93c5fd' }}
+                      >
+                        {joining[c.name] ? 'Leaving...' : `👋 Leave ${c.shortName}`}
+                      </button>
+                    ) : (
+                      <button 
+                        onClick={() => handleJoinClub(c.name)}
+                        disabled={joining[c.name]}
+                        className="btn btn-primary btn-sm"
+                        style={{ background: c.accentColor, color: '#fff', borderColor: c.accentColor }}
+                      >
+                        {joining[c.name] ? 'Joining...' : `🎓 Join ${c.shortName}`}
+                      </button>
+                    )}
+                  </div>
+                )}
               </div>
             </div>
           ))}
@@ -132,14 +203,40 @@ export default function Clubs() {
                   </a>
                 </div>
 
-                {/* CTA */}
-                <Link
-                  to={`/events?club=${encodeURIComponent(club.name)}`}
-                  className="btn w-full"
-                  style={{ marginTop: 14, background: club.accentColor, color: '#fff', justifyContent: 'center', textDecoration: 'none', display: 'flex', alignItems: 'center', gap: 6 }}
-                >
-                  View {club.shortName} Events →
-                </Link>
+                {/* CTA + Join button (expanded) */}
+                <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
+                  <Link
+                    to={`/events?club=${encodeURIComponent(club.name)}`}
+                    className="btn w-full"
+                    style={{ background: club.accentColor, color: '#fff', justifyContent: 'center', textDecoration: 'none', display: 'flex', alignItems: 'center', gap: 6 }}
+                  >
+                    View {club.shortName} Events →
+                  </Link>
+                  
+                  {isStudent && (
+                    <div style={{ textAlign: 'center' }}>
+                      {isMember(club.name) ? (
+                        <button 
+                          onClick={() => handleLeaveClub(club.name)}
+                          disabled={joining[club.name]}
+                          className="btn btn-ghost btn-sm w-full"
+                          style={{ background: '#dbeafe', color: '#1e40af' }}
+                        >
+                          {joining[club.name] ? 'Leaving...' : `Leave ${club.shortName}`}
+                        </button>
+                      ) : (
+                        <button 
+                          onClick={() => handleJoinClub(club.name)}
+                          disabled={joining[club.name]}
+                          className="btn btn-primary btn-sm w-full"
+                          style={{ background: club.accentColor, color: '#fff' }}
+                        >
+                          {joining[club.name] ? 'Joining...' : `Join ${club.shortName}`}
+                        </button>
+                      )}
+                    </div>
+                  )}
+                </div>
               </div>
             </div>
           </div>

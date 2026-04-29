@@ -60,7 +60,7 @@ export default function Home() {
         <style>{`@keyframes pulse{0%,100%{opacity:1;transform:scale(1)}50%{opacity:.5;transform:scale(1.4)}}`}</style>
       </div>
 
-      {/* Features */}
+      {/* Features
       <section style={{ background: '#fff', padding: '60px 0' }}>
         <div className="container">
           <div style={{ fontSize: 11, fontWeight: 700, letterSpacing: 1.5, textTransform: 'uppercase', color: '#8B1A1A', display: 'flex', alignItems: 'center', gap: 8, marginBottom: 6 }}>
@@ -88,7 +88,7 @@ export default function Home() {
             ))}
           </div>
         </div>
-      </section>
+      </section> */}
 
       {/* Upcoming events */}
       {events.length > 0 && (

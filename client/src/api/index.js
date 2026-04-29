@@ -33,7 +33,7 @@ export const getEvent         = id => API.get(`/events/${id}`);
 export const createEvent      = d  => API.post('/events', d);
 export const updateEvent      = (id, d) => API.put(`/events/${id}`, d);
 export const deleteEvent      = id => API.delete(`/events/${id}`);
-export const registerForEvent = id => API.post(`/events/${id}/register`);
+export const registerForEvent = (id, data = {}) => API.post(`/events/${id}/register`, data);
 export const getRegistrations = id => API.get(`/events/${id}/registrations`);
 
 // Attendance
@@ -58,5 +58,10 @@ export const getEventStats  = id  => API.get(`/analytics/event/${id}`);
 // Users
 export const getProfile    = () => API.get('/users/profile');
 export const updateProfile = d  => API.put('/users/profile', d);
+
+// Club Membership
+export const getMyClubs  = () => API.get('/users/clubs');
+export const joinClub    = clubName => API.post('/users/clubs', { clubName });
+export const leaveClub   = clubName => API.delete(`/users/clubs/${encodeURIComponent(clubName)}`);
 
 export default API;

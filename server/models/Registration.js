@@ -9,6 +9,7 @@ const schema = new mongoose.Schema({
   attendedAt:  { type: Date },
   checkedInBy: { type: mongoose.Schema.Types.ObjectId, ref: 'User' },
   status:      { type: String, enum: ['registered','attended','cancelled'], default: 'registered' },
+  comment:     { type: String, trim: true, maxlength: 200 },
 }, { timestamps: true });
 
 schema.index({ user: 1, event: 1 }, { unique: true });

@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate, Link } from 'react-router-dom';
-import { getEvent, registerForEvent, checkCertificate, submitFeedback, checkFeedback } from '../api';
+import { getEvent, registerForEvent, checkCertificate, submitFeedback, checkFeedback, getRegistrations } from '../api';
 import { useAuth } from '../context/AuthContext';
 import toast from 'react-hot-toast';
 import { CLUB_BY_NAME } from '../data/clubs';
@@ -14,12 +14,16 @@ export default function EventDetail() {
   const [loading,     setLoading]     = useState(true);
   const [registering, setRegistering] = useState(false);
   const [qrCode,      setQrCode]      = useState(null);
+  const [qrToken,     setQrToken]     = useState('');
   const [certInfo,    setCertInfo]    = useState(null);   // ← certificate status
   const [certLoading, setCertLoading] = useState(false);
   const [fbDone,      setFbDone]      = useState(false);
   const [showFb,      setShowFb]      = useState(false);
   const [fb,          setFb]          = useState({ rating: 5, comment: '' });
   const [fbSaving,    setFbSaving]    = useState(false);
+  const [registrations, setRegistrations] = useState([]);
+  const [regsLoading, setRegsLoading] = useState(false);
+  const isOrganizer = user?.role === 'organizer' || user?.role === 'admin';
 
   useEffect(() => {
     getEvent(id)
@@ -27,33 +31,50 @@ export default function EventDetail() {
       .catch(() => { toast.error('Event not found'); navigate('/events'); });
   }, [id]);
 
-  // Load cert + feedback status once we have user + event
+  // Load cert + feedback + registrations for roles
   useEffect(() => {
     if (!user || !event) return;
+
     if (user.role === 'student') {
-      // Check certificate status
+      // Student: cert + feedback
       setCertLoading(true);
       checkCertificate(id)
         .then(r => { setCertInfo(r.data); setCertLoading(false); })
         .catch(() => setCertLoading(false));
-      // Check feedback
       checkFeedback(id)
         .then(r => setFbDone(r.data.submitted))
         .catch(() => {});
     }
-  }, [user, event]);
+
+    if (isOrganizer) {
+      // Organizer: load registrations list
+      setRegsLoading(true);
+      getRegistrations(id)
+        .then(r => {
+          setRegistrations(r.data.registrations || []);
+          setRegsLoading(false);
+        })
+        .catch(() => setRegsLoading(false));
+    }
+  }, [user, event, id]);
+
+  const [showRegModal, setShowRegModal] = useState(false);
+  const [regComment, setRegComment] = useState('');
 
   const handleRegister = async () => {
     if (!user) { navigate('/login'); return; }
     setRegistering(true);
     try {
-      const { data } = await registerForEvent(id);
+      const { data } = await registerForEvent(id, { comment: regComment });
       setQrCode(data.qrCode);
+      setQrToken(data.registration?.qrToken || data.qrToken || '');
       if (data.alreadyRegistered) toast('You were already registered — here is your QR', { icon: 'ℹ️' });
       else { toast.success('Registered! Your QR code is ready.'); setEvent(p => ({ ...p, registeredCount: p.registeredCount + 1 })); }
       // Refresh cert info
       const cr = await checkCertificate(id);
       setCertInfo(cr.data);
+      setShowRegModal(false);
+      setRegComment('');
     } catch (err) { toast.error(err.response?.data?.message || 'Registration failed'); }
     finally { setRegistering(false); }
   };
@@ -245,9 +266,45 @@ export default function EventDetail() {
               {!qrCode && !certInfo?.registered ? (
                 <>
                   {canRegister && (
-                    <button onClick={handleRegister} className="btn btn-primary w-full" style={{ justifyContent:'center',fontSize:15 }} disabled={registering}>
-                      {registering ? <><div className="spinner" style={{width:16,height:16}}/> Registering...</> : '🎟️ Register Now'}
-                    </button>
+                    <>
+                      <button onClick={() => setShowRegModal(true)} className="btn btn-primary w-full" style={{ justifyContent:'center',fontSize:15 }} disabled={registering}>
+                        {registering ? <><div className="spinner" style={{width:16,height:16}}/> Registering...</> : '🎟️ Register Now'}
+                      </button>
+                      {showRegModal && (
+                        <div className="card" style={{ padding: '20px', marginTop: 12, background: '#f8fafc' }}>
+                          <h4 style={{ fontSize: 14, color: '#1e293b', marginBottom: 12 }}>Optional Comment</h4>
+                          <textarea 
+                            value={regComment}
+                            onChange={e => setRegComment(e.target.value.slice(0,200))}
+                            placeholder="Any dietary restrictions, track preference, or special requests? (optional)"
+                            className="form-textarea"
+                            rows="3"
+                            maxLength="200"
+                            style={{ fontSize: 13 }}
+                          />
+                          <div style={{ fontSize: 11, color: '#64748b', textAlign: 'right', marginTop: 4 }}>
+                            {regComment.length}/200
+                          </div>
+                          <div style={{ display: 'flex', gap: 8, marginTop: 12 }}>
+                            <button 
+                              type="button"
+                              onClick={handleRegister}
+                              className="btn btn-primary flex-1"
+                              disabled={registering || !regComment.trim()}
+                            >
+                              Register with Comment
+                            </button>
+                            <button 
+                              type="button" 
+                              onClick={() => { setShowRegModal(false); setRegComment(''); }}
+                              className="btn btn-ghost flex-1"
+                            >
+                              Skip Comment
+                            </button>
+                          </div>
+                        </div>
+                      )}
+                    </>
                   )}
                   {isStudent && isFull && <div className="alert alert-error" style={{textAlign:'center'}}>❌ Event Full</div>}
                   {isStudent && event.status==='completed' && <div className="alert alert-warning" style={{textAlign:'center'}}>Registration closed</div>}
@@ -264,6 +321,9 @@ export default function EventDetail() {
                 <h3 style={{ fontSize:15,color:'#8B1A1A',marginBottom:4 }}>Your QR Code</h3>
                 <p style={{ fontSize:12,color:'#6B7280',marginBottom:12 }}>Show at venue for attendance</p>
                 <img src={qrCode} alt="QR" style={{ width:'100%',maxWidth:200,borderRadius:8,border:'2px solid #E5E0D8' }}/>
+                <div style={{ fontFamily: 'monospace', fontSize: 11, color: '#8B1A1A', background: '#f8fafc', padding: '8px 12px', borderRadius: 6, margin: '12px 0', wordBreak: 'break-all' }}>
+                  Token: {qrToken || 'Loading...'}
+                </div>
                 <p style={{ fontSize:11,color:'#9CA3AF',marginTop:8 }}>Do not share this QR code.</p>
                 <button onClick={()=>{ const a=document.createElement('a');a.href=qrCode;a.download=`QR-${event.title}.png`;a.click(); }}
                   className="btn btn-outline btn-sm" style={{ marginTop:10 }}>⬇ Download QR</button>
@@ -322,9 +382,112 @@ export default function EventDetail() {
                 </div>
               </div>
             )}
+
+            {/* ── ORGANIZER: Registered Students List ── */}
+            {isOrganizer && (
+              <div className="card" style={{ marginBottom: 14, borderTop: '3px solid #10b981' }}>
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 12 }}>
+                  <h3 style={{ fontSize: 16, color: '#059669' }}>📋 Registered Students</h3>
+                  <div style={{ fontSize: 12, color: '#6B7280' }}>
+                    {registrations.length}/{event.capacity}
+                  </div>
+                </div>
+
+                {regsLoading ? (
+                  <div style={{ display: 'flex', alignItems: 'center', gap: 8, color: '#6B7280', fontSize: 13 }}>
+                    <div className="spinner"/> Loading registrants...
+                  </div>
+                ) : registrations.length === 0 ? (
+                  <div style={{ fontSize: 13, color: '#6B7280', textAlign: 'center' }}>No students registered yet</div>
+                ) : (
+                  <div style={{ maxHeight: 300, overflow: 'auto' }}>
+{registrations.slice(0, 12).map((reg, index) => (
+                    <div key={reg._id} style={{ padding: '12px 0', borderBottom: '1px solid #f3f4f6', fontSize: 12 }}>
+                      <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
+                        {/* S.No */}
+                        <div style={{ width: 24, fontWeight: 600, color: '#6B7280' }}>{index + 1}.</div>
+                        
+                        {/* Student Info */}
+                        <div style={{ flex: 1 }}>
+                          <div style={{ fontWeight: 600, marginBottom: 2 }}>{reg.user?.name || 'N/A'}</div>
+                          <div style={{ color: '#9CA3AF', fontSize: 11 }}>{reg.user?.collegeId}</div>
+                        </div>
+
+                        {/* Status */}
+                        <span className={`badge ${reg.attended ? 'badge-success' : 'badge-warning'}`}>
+                          {reg.attended ? '✅ Attended' : '⏳ Pending'}
+                        </span>
+
+                        {/* QR Token */}
+                        <div style={{ fontFamily: 'monospace', fontSize: 11, color: '#8B1A1A', textAlign: 'right', maxWidth: 100, overflow: 'hidden', textOverflow: 'ellipsis' }}>
+                          {reg.qrToken?.slice(0,8)}...
+                        </div>
+
+                        {/* QR Image (small) */}
+                        {reg.qrCode && (
+                          <img 
+                            src={reg.qrCode} 
+                            alt="QR" 
+                            style={{ width: 32, height: 32, borderRadius: 4, border: '1px solid #e5e7eb' }}
+                            title={reg.qrToken}
+                          />
+                        )}
+                      </div>
+                      {reg.comment && (
+                        <div style={{ fontSize: 11, color: '#6b7280', padding: '6px 8px', background: '#f8fafc', borderRadius: 6, marginLeft: 36, marginTop: 6, lineHeight: 1.3 }}>
+                          "{reg.comment}"
+                        </div>
+                      )}
+                    </div>
+                  ))}
+                    {registrations.length > 12 && (
+                      <div style={{ textAlign: 'center', padding: 8, fontSize: 11, color: '#6B7280' }}>
+                        +{registrations.length - 12} more · <Link to={`/events/${id}/registrations`} style={{ color: '#3b82f6' }}>View All</Link>
+                      </div>
+                    )}
+                  </div>
+                )}
+
+                {registrations.length > 0 && (
+                  <div style={{ paddingTop: 12, borderTop: '1px solid #f3f4f6' }}>
+                    <div style={{ fontSize: 11, color: '#9CA3AF', textAlign: 'center', marginBottom: 4 }}>Attended: {registrations.filter(r => r.attended).length}</div>
+                  </div>
+                )}
+
+                {/* NEW: END EVENT BUTTON - for ongoing events */}
+                {event.status === 'ongoing' && (
+                  <div style={{ paddingTop: 12, borderTop: '1px solid #f3f4f6', paddingBottom: 12 }}>
+                    <button 
+                      onClick={async () => {
+                        if (!confirm('End this event? Status will change to "completed". Certificates can be issued manually.')) return;
+                        try {
+                          toast.loading('Ending event...', { id: 'end-event' });
+                          const { data } = await fetch(`/api/events/${id}/end`, {
+                            method: 'POST',
+                            headers: { 'Authorization': `Bearer ${localStorage.getItem('token')}` }
+                          });
+                          toast.success(data.message, { id: 'end-event' });
+                          setEvent(data.event);
+                        } catch (err) {
+                          toast.error(err.response?.data?.message || 'Failed to end event', { id: 'end-event' });
+                        }
+                      }} 
+                      className="btn btn-warning w-full"
+                      style={{ fontWeight: 600, color: '#92400e', background: '#fef3c7', borderColor: '#f59e0b' }}
+                    >
+                      ⏹️ End Event Now
+                    </button>
+                    <p style={{ fontSize: 11, color: '#9CA3AF', textAlign: 'center', marginTop: 6 }}>
+                      Triggers "completed" status
+                    </p>
+                  </div>
+                )}
+              </div>
+            )}
           </div>
         </div>
       </div>
     </div>
   );
 }
+

@@ -87,11 +87,20 @@ exports.register = async (req, res) => {
       return res.json({ success: true, registration: already, qrCode: already.qrCode, alreadyRegistered: true });
     }
 
+    const { comment = '' } = req.body;
+    if (comment.length > 200) return res.status(400).json({ success: false, message: 'Comment too long (max 200 chars)' });
+
     const qrToken = uuid();
     const qrData  = JSON.stringify({ token: qrToken, eventId: event._id.toString(), userId: req.user._id.toString() });
     const qrCode  = await QRCode.toDataURL(qrData);
 
-    const reg = await Registration.create({ user: req.user._id, event: event._id, qrToken, qrCode });
+    const reg = await Registration.create({ 
+      user: req.user._id, 
+      event: event._id, 
+      qrToken, 
+      qrCode, 
+      comment 
+    });
     await Event.findByIdAndUpdate(event._id, { $inc: { registeredCount: 1 } });
     res.status(201).json({ success: true, registration: reg, qrCode });
   } catch (e) {
@@ -116,4 +125,33 @@ exports.getMyEvents = async (req, res) => {
     const events = await Event.find({ organizer: req.user._id }).sort({ date: -1 });
     res.json({ success: true, events });
   } catch (e) { res.status(500).json({ success: false, message: e.message }); }
+};
+
+// NEW: POST /api/events/:id/end - Organizer manually ends event
+exports.endEvent = async (req, res) => {
+  try {
+    const event = await Event.findById(req.params.id).populate('organizer');
+    if (!event) return res.status(404).json({ success: false, message: 'Event not found' });
+    
+    // Authorization
+    if (event.organizer._id.toString() !== req.user._id.toString() && req.user.role !== 'admin') {
+      return res.status(403).json({ success: false, message: 'Not authorized' });
+    }
+    
+    // Only ongoing events
+    if (event.status !== 'ongoing') {
+      return res.status(400).json({ success: false, message: 'Event must be ongoing' });
+    }
+    
+    // Update to completed
+    event.status = 'completed';
+    await event.save();
+    
+    // Optional: Auto-issue certificates for attended
+    // await issueCerts(req.params.id);  // Uncomment if auto-cert desired
+    
+    res.json({ success: true, message: 'Event ended successfully', event });
+  } catch (e) {
+    res.status(500).json({ success: false, message: e.message });
+  }
 };

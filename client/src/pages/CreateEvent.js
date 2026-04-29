@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { createEvent } from '../api';
 import toast from 'react-hot-toast';
+import { GEU_CLUBS } from '../data/clubs';
 
 const DEPTS = ['All Departments','Computer Science and Engineering','Electronics and Communication Engineering','Mechanical Engineering','Civil Engineering','Electrical Engineering','Aerospace Engineering','Biotechnology','Management','Computer Application','Law','Design'];
 const CATS  = ['Technical','Cultural','Sports','Workshop','Seminar','Fest','Club Activity','Other'];
@@ -44,6 +45,14 @@ export default function CreateEvent() {
             </div>
             <div className="form-group"><label className="form-label">Department</label>
               <select className="form-select" {...f('department')}>{DEPTS.map(d=><option key={d}>{d}</option>)}</select>
+            </div>
+            <div className="form-group"><label className="form-label">Club (optional)</label>
+              <select className="form-select" {...f('club')}>
+                <option value="">No club</option>
+                {GEU_CLUBS.map(club => (
+                  <option key={club.id} value={club.name}>{club.name} {club.logo}</option>
+                ))}
+              </select>
             </div>
             <div className="form-group"><label className="form-label">Tags (comma-separated)</label><input className="form-input" placeholder="hackathon, coding, AI" {...f('tags')} /></div>
             <button type="submit" className="btn btn-primary btn-lg w-full" style={{ justifyContent:'center' }} disabled={loading}>

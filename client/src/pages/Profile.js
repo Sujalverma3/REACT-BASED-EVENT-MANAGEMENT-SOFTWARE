@@ -1,7 +1,7 @@
 // This file exports Profile as default
 import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
-import { getProfile, updateProfile, getMyCerts, checkCertificate } from '../api';
+import { getProfile, updateProfile, getMyCerts, getMyClubs } from '../api';
 import { useAuth } from '../context/AuthContext';
 import toast from 'react-hot-toast';
 
@@ -36,6 +36,11 @@ export default function Profile() {
   };
 
   const initials = user?.name.split(' ').map(n=>n[0]).join('').slice(0,2).toUpperCase();
+  const [myClubs, setMyClubs] = useState([]);
+
+  useEffect(() => {
+    getMyClubs().then(r => setMyClubs(r.data.clubs)).catch(() => {});
+  }, []);
 
   return (
     <div className="page">
@@ -69,7 +74,24 @@ export default function Profile() {
                 </form>
               )}
             </div>
-            <Link to="/certificates" className="btn btn-gold w-full" style={{ justifyContent:'center' }}>🏆 My Certificates</Link>
+<Link to="/certificates" className="btn btn-gold w-full" style={{ justifyContent:'center' }}>🏆 My Certificates</Link>
+
+            {user?.role === 'student' && (
+              <div className="card" style={{ marginBottom: 14, borderTop: '3px solid #3b82f6' }}>
+                <h3 style={{ fontSize: 16, color: '#1e40af', marginBottom: 12 }}>🏛️ My Clubs ({myClubs.length})</h3>
+                {myClubs.length === 0 ? (
+                  <div style={{ fontSize: 13, color: '#6B7280', textAlign: 'center' }}>No clubs joined yet. <Link to="/clubs" style={{ color: '#3b82f6' }}>Join clubs →</Link></div>
+                ) : (
+                  <div style={{ display: 'flex', flexWrap: 'wrap', gap: 6 }}>
+                    {myClubs.map(club => (
+                      <span key={club} className="badge" style={{ background: '#dbeafe', color: '#1e40af' }}>
+                        {club}
+                      </span>
+                    ))}
+                  </div>
+                )}
+              </div>
+            )}
           </div>
 
           {/* Registrations */}

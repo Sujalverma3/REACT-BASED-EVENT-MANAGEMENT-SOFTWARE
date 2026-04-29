@@ -2,6 +2,7 @@ const router       = require('express').Router();
 const User         = require('../models/User');
 const Registration = require('../models/Registration');
 const { protect, authorize } = require('../middlewares/auth');
+const userController = require('../controllers/userController');
 
 // GET /api/users/profile
 router.get('/profile', protect, async (req, res) => {
@@ -37,5 +38,16 @@ router.get('/', protect, authorize('admin','organizer'), async (req, res) => {
     res.json({ success: true, count: users.length, users });
   } catch (e) { res.status(500).json({ success: false, message: e.message }); }
 });
+
+// ── CLUB MEMBERSHIP ──
+
+// GET /api/users/clubs - Get my clubs
+router.get('/clubs', protect, userController.getMyClubs);
+
+// POST /api/users/clubs - Join club
+router.post('/clubs', protect, authorize('student'), userController.joinClub);
+
+// DELETE /api/users/clubs/:clubName - Leave club
+router.delete('/clubs/:clubName', protect, authorize('student'), userController.leaveClub);
 
 module.exports = router;
