@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate, Link } from 'react-router-dom';
-import { getEvent, registerForEvent, checkCertificate, submitFeedback, checkFeedback, getRegistrations } from '../api';
+import { getEvent, registerForEvent, checkCertificate, submitFeedback, checkFeedback, getRegistrations, APIBASE } from '../api';
 import { useAuth } from '../context/AuthContext';
 import toast from 'react-hot-toast';
 import { CLUB_BY_NAME } from '../data/clubs';
@@ -97,7 +97,7 @@ export default function EventDetail() {
   const spotsLeft = Math.max(0, event.capacity - event.registeredCount);
   const isStudent = user?.role === 'student';
   const canRegister = isStudent && event.status === 'upcoming' && !isFull;
-  const APIBASE  = '';  // proxy handles it
+
   const clubData = event.club ? CLUB_BY_NAME[event.club] : null;
 
   return (
@@ -205,7 +205,7 @@ export default function EventDetail() {
                             </div>
                             <div style={{ display:'flex', gap:8 }}>
                               {certInfo.certificate.fileUrl && (
-                                <a href={`${APIBASE}${certInfo.certificate.fileUrl}`} target="_blank" rel="noreferrer" className="btn btn-primary btn-sm">⬇ Download PDF</a>
+                                <a href={`${APIBASE}${certInfo.certificate.fileUrl}`} target="_blank" rel="noreferrer" className="btn btn-primary btn-sm">👁 View Certificate</a>
                               )}
                               <Link to={`/verify/${certInfo.certificate.certificateId}`} className="btn btn-outline btn-sm">🔍 Verify</Link>
                             </div>

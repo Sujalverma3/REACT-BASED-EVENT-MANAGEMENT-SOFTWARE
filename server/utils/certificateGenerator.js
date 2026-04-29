@@ -8,7 +8,15 @@ const generateCertificate = ({ user, event, certId }) =>
   new Promise((resolve, reject) => {
     const PDFDocument = require('pdfkit');
     const file = path.join(dir, `${certId}.pdf`);
-    const doc  = new PDFDocument({ size: 'A4', layout: 'landscape', margin: 0 });
+    const doc  = new PDFDocument({ 
+      size: 'A4', 
+      layout: 'landscape', 
+      margin: 0,
+      info: {
+        Title: `${event.title} - Certificate`,
+        Author: 'UniVerse GEU'
+      }
+    });
     const out  = fs.createWriteStream(file);
     doc.pipe(out);
 

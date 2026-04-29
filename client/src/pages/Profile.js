@@ -1,7 +1,7 @@
 // This file exports Profile as default
 import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
-import { getProfile, updateProfile, getMyCerts, getMyClubs } from '../api';
+import { getProfile, updateProfile, getMyCerts, getMyClubs, APIBASE } from '../api';
 import { useAuth } from '../context/AuthContext';
 import toast from 'react-hot-toast';
 
@@ -126,7 +126,7 @@ export default function Profile() {
                       </div>
                       {cert && (
                         <div style={{ marginTop: 10, display: 'flex', gap: 8 }}>
-                          {cert.fileUrl && <a href={cert.fileUrl} target="_blank" rel="noreferrer" className="btn btn-primary btn-sm">⬇ Download Certificate</a>}
+                          {cert.fileUrl && <a href={`${APIBASE}${cert.fileUrl}`} target="_blank" rel="noreferrer" className="btn btn-primary btn-sm">👁 View Certificate</a>}
                           <Link to={`/verify/${cert.certificateId}`} className="btn btn-ghost btn-sm">🔍 Verify</Link>
                         </div>
                       )}

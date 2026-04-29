@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
-import { getMyCerts, getProfile, checkCertificate } from '../api';
+import { getMyCerts, getProfile, checkCertificate, APIBASE } from '../api';
 import toast from 'react-hot-toast';
 
 export default function Certificates() {
@@ -54,7 +54,7 @@ export default function Certificates() {
       <div className="container">
         <div className="page-header">
           <h1>My Certificates</h1>
-          <p>Track and download your participation certificates</p>
+          <p>Track and view your participation certificates</p>
         </div>
 
         {/* Tabs */}
@@ -85,7 +85,7 @@ export default function Certificates() {
                       <div style={{ fontFamily: 'monospace', fontSize: 11, background: '#fdf0f0', color: '#8B1A1A', padding: '3px 10px', borderRadius: 6, display: 'inline-block', marginBottom: 12 }}>{cert.certificateId}</div>
                       <div style={{ display: 'flex', gap: 8 }}>
                         {cert.fileUrl && (
-                          <a href={cert.fileUrl} target="_blank" rel="noreferrer" className="btn btn-primary btn-sm">⬇ Download PDF</a>
+                          <a href={`${APIBASE}${cert.fileUrl}`} target="_blank" rel="noreferrer" className="btn btn-primary btn-sm">👁 View Certificate</a>
                         )}
                         <Link to={`/verify/${cert.certificateId}`} className="btn btn-ghost btn-sm">🔍 Verify</Link>
                       </div>
